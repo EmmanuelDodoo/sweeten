@@ -1,7 +1,8 @@
 //! A container for capturing mouse events.
 //!
 //! This is a sweetened version of `iced`'s [`MouseArea`] where all event
-//! handlers receive the cursor position as a [`Point`].
+//! handlers receive the cursor position as a [`Point`] and the
+//! [`keyboard::Modifiers`] held at the time of the event.
 //!
 //! [`MouseArea`]: https://docs.iced.rs/iced/widget/struct.MouseArea.html
 //!
@@ -9,13 +10,14 @@
 //! ```no_run
 //! # pub type State = ();
 //! # pub type Element<'a, Message> = iced::Element<'a, Message>;
+//! use iced::keyboard;
 //! use iced::Point;
 //! use iced::widget::text;
 //! use sweeten::widget::mouse_area;
 //!
 //! #[derive(Clone)]
 //! enum Message {
-//!     Clicked(Point),
+//!     Clicked(Point, keyboard::Modifiers),
 //! }
 //!
 //! fn view(state: &State) -> Element<'_, Message> {
@@ -24,6 +26,7 @@
 //!         .into()
 //! }
 //! ```
+use crate::core::keyboard;
 use crate::core::layout;
 use crate::core::mouse;
 use crate::core::overlay;
@@ -43,37 +46,39 @@ pub struct MouseArea<
     Renderer = crate::Renderer,
 > {
     content: Element<'a, Message, Theme, Renderer>,
-    on_press: Option<Box<dyn Fn(Point) -> Message + 'a>>,
-    on_release: Option<Box<dyn Fn(Point) -> Message + 'a>>,
-    on_double_click: Option<Box<dyn Fn(Point) -> Message + 'a>>,
-    on_right_press: Option<Box<dyn Fn(Point) -> Message + 'a>>,
-    on_right_release: Option<Box<dyn Fn(Point) -> Message + 'a>>,
-    on_middle_press: Option<Box<dyn Fn(Point) -> Message + 'a>>,
-    on_middle_release: Option<Box<dyn Fn(Point) -> Message + 'a>>,
+    on_press: Option<Box<dyn Fn(Point, keyboard::Modifiers) -> Message + 'a>>,
+    on_release: Option<Box<dyn Fn(Point, keyboard::Modifiers) -> Message + 'a>>,
+    on_double_click: Option<Box<dyn Fn(Point, keyboard::Modifiers) -> Message + 'a>>,
+    on_right_press: Option<Box<dyn Fn(Point, keyboard::Modifiers) -> Message + 'a>>,
+    on_right_release: Option<Box<dyn Fn(Point, keyboard::Modifiers) -> Message + 'a>>,
+    on_middle_press: Option<Box<dyn Fn(Point, keyboard::Modifiers) -> Message + 'a>>,
+    on_middle_release: Option<Box<dyn Fn(Point, keyboard::Modifiers) -> Message + 'a>>,
     on_scroll: Option<Box<dyn Fn(mouse::ScrollDelta) -> Message + 'a>>,
-    on_enter: Option<Box<dyn Fn(Point) -> Message + 'a>>,
-    on_move: Option<Box<dyn Fn(Point) -> Message + 'a>>,
-    on_exit: Option<Box<dyn Fn(Point) -> Message + 'a>>,
+    on_enter: Option<Box<dyn Fn(Point, keyboard::Modifiers) -> Message + 'a>>,
+    on_move: Option<Box<dyn Fn(Point, keyboard::Modifiers) -> Message + 'a>>,
+    on_exit: Option<Box<dyn Fn(Point, keyboard::Modifiers) -> Message + 'a>>,
     interaction: Option<mouse::Interaction>,
 }
 
 impl<'a, Message, Theme, Renderer> MouseArea<'a, Message, Theme, Renderer> {
     /// Sets the message to emit on a left button press.
     ///
-    /// The closure receives the click position as a [`Point`].
+    /// The closure receives the click position as a [`Point`] and
+    /// the [`keyboard::Modifiers`] held at the time of the event.
     #[must_use]
-    pub fn on_press(mut self, f: impl Fn(Point) -> Message + 'a) -> Self {
+    pub fn on_press(mut self, f: impl Fn(Point, keyboard::Modifiers) -> Message + 'a) -> Self {
         self.on_press = Some(Box::new(f));
         self
     }
 
     /// Sets the message to emit on a left button press, if `Some`.
     ///
-    /// The closure receives the click position as a [`Point`].
+    /// The closure receives the click position as a [`Point`] and
+    /// the [`keyboard::Modifiers`] held at the time of the event.
     #[must_use]
     pub fn on_press_maybe(
         mut self,
-        f: Option<impl Fn(Point) -> Message + 'a>,
+        f: Option<impl Fn(Point, keyboard::Modifiers) -> Message + 'a>,
     ) -> Self {
         self.on_press = f.map(|f| Box::new(f) as _);
         self
@@ -81,16 +86,18 @@ impl<'a, Message, Theme, Renderer> MouseArea<'a, Message, Theme, Renderer> {
 
     /// Sets the message to emit on a left button release.
     ///
-    /// The closure receives the release position as a [`Point`].
+    /// The closure receives the release position as a [`Point`] and
+    /// the [`keyboard::Modifiers`] held at the time of the event.
     #[must_use]
-    pub fn on_release(mut self, f: impl Fn(Point) -> Message + 'a) -> Self {
+    pub fn on_release(mut self, f: impl Fn(Point, keyboard::Modifiers) -> Message + 'a) -> Self {
         self.on_release = Some(Box::new(f));
         self
     }
 
     /// Sets the message to emit on a double click.
     ///
-    /// The closure receives the click position as a [`Point`].
+    /// The closure receives the click position as a [`Point`] and
+    /// the [`keyboard::Modifiers`] held at the time of the event.
     ///
     /// If you use this with [`on_press`]/[`on_release`], those
     /// events will be emitted as normal.
@@ -103,7 +110,7 @@ impl<'a, Message, Theme, Renderer> MouseArea<'a, Message, Theme, Renderer> {
     #[must_use]
     pub fn on_double_click(
         mut self,
-        f: impl Fn(Point) -> Message + 'a,
+        f: impl Fn(Point, keyboard::Modifiers) -> Message + 'a,
     ) -> Self {
         self.on_double_click = Some(Box::new(f));
         self
@@ -111,20 +118,22 @@ impl<'a, Message, Theme, Renderer> MouseArea<'a, Message, Theme, Renderer> {
 
     /// Sets the message to emit on a right button press.
     ///
-    /// The closure receives the click position as a [`Point`].
+    /// The closure receives the click position as a [`Point`] and
+    /// the [`keyboard::Modifiers`] held at the time of the event.
     #[must_use]
-    pub fn on_right_press(mut self, f: impl Fn(Point) -> Message + 'a) -> Self {
+    pub fn on_right_press(mut self, f: impl Fn(Point, keyboard::Modifiers) -> Message + 'a) -> Self {
         self.on_right_press = Some(Box::new(f));
         self
     }
 
     /// Sets the message to emit on a right button release.
     ///
-    /// The closure receives the release position as a [`Point`].
+    /// The closure receives the release position as a [`Point`] and
+    /// the [`keyboard::Modifiers`] held at the time of the event.
     #[must_use]
     pub fn on_right_release(
         mut self,
-        f: impl Fn(Point) -> Message + 'a,
+        f: impl Fn(Point, keyboard::Modifiers) -> Message + 'a,
     ) -> Self {
         self.on_right_release = Some(Box::new(f));
         self
@@ -132,11 +141,12 @@ impl<'a, Message, Theme, Renderer> MouseArea<'a, Message, Theme, Renderer> {
 
     /// Sets the message to emit on a middle button press.
     ///
-    /// The closure receives the click position as a [`Point`].
+    /// The closure receives the click position as a [`Point`] and
+    /// the [`keyboard::Modifiers`] held at the time of the event.
     #[must_use]
     pub fn on_middle_press(
         mut self,
-        f: impl Fn(Point) -> Message + 'a,
+        f: impl Fn(Point, keyboard::Modifiers) -> Message + 'a,
     ) -> Self {
         self.on_middle_press = Some(Box::new(f));
         self
@@ -144,11 +154,12 @@ impl<'a, Message, Theme, Renderer> MouseArea<'a, Message, Theme, Renderer> {
 
     /// Sets the message to emit on a middle button release.
     ///
-    /// The closure receives the release position as a [`Point`].
+    /// The closure receives the release position as a [`Point`] and
+    /// the [`keyboard::Modifiers`] held at the time of the event.
     #[must_use]
     pub fn on_middle_release(
         mut self,
-        f: impl Fn(Point) -> Message + 'a,
+        f: impl Fn(Point, keyboard::Modifiers) -> Message + 'a,
     ) -> Self {
         self.on_middle_release = Some(Box::new(f));
         self
@@ -168,7 +179,7 @@ impl<'a, Message, Theme, Renderer> MouseArea<'a, Message, Theme, Renderer> {
     ///
     /// The closure receives the entry position as a [`Point`].
     #[must_use]
-    pub fn on_enter(mut self, f: impl Fn(Point) -> Message + 'a) -> Self {
+    pub fn on_enter(mut self, f: impl Fn(Point, keyboard::Modifiers) -> Message + 'a) -> Self {
         self.on_enter = Some(Box::new(f));
         self
     }
@@ -177,7 +188,7 @@ impl<'a, Message, Theme, Renderer> MouseArea<'a, Message, Theme, Renderer> {
     ///
     /// The closure receives the current position as a [`Point`].
     #[must_use]
-    pub fn on_move(mut self, f: impl Fn(Point) -> Message + 'a) -> Self {
+    pub fn on_move(mut self, f: impl Fn(Point, keyboard::Modifiers) -> Message + 'a) -> Self {
         self.on_move = Some(Box::new(f));
         self
     }
@@ -186,7 +197,7 @@ impl<'a, Message, Theme, Renderer> MouseArea<'a, Message, Theme, Renderer> {
     ///
     /// The closure receives the exit position as a [`Point`].
     #[must_use]
-    pub fn on_exit(mut self, f: impl Fn(Point) -> Message + 'a) -> Self {
+    pub fn on_exit(mut self, f: impl Fn(Point, keyboard::Modifiers) -> Message + 'a) -> Self {
         self.on_exit = Some(Box::new(f));
         self
     }
@@ -206,6 +217,7 @@ struct State {
     bounds: Rectangle,
     cursor_position: Option<Point>,
     previous_click: Option<mouse::Click>,
+    modifiers: keyboard::Modifiers,
 }
 
 impl<'a, Message, Theme, Renderer> MouseArea<'a, Message, Theme, Renderer> {
@@ -398,6 +410,11 @@ fn update<Message, Theme, Renderer>(
 ) {
     let state: &mut State = tree.state.downcast_mut();
 
+    if let Event::Keyboard(keyboard::Event::ModifiersChanged(modifiers)) = event
+    {
+        state.modifiers = *modifiers;
+    }
+
     let cursor_position = cursor.position();
     let bounds = layout.bounds();
 
@@ -415,13 +432,13 @@ fn update<Message, Theme, Renderer>(
                 widget.on_exit.as_ref(),
             ) {
                 (Some(on_enter), _, _) if state.is_hovered && !was_hovered => {
-                    shell.publish(on_enter(position));
+                    shell.publish(on_enter(position, state.modifiers));
                 }
                 (_, Some(on_move), _) if state.is_hovered => {
-                    shell.publish(on_move(position));
+                    shell.publish(on_move(position, state.modifiers));
                 }
                 (_, _, Some(on_exit)) if !state.is_hovered && was_hovered => {
-                    shell.publish(on_exit(position));
+                    shell.publish(on_exit(position, state.modifiers));
                 }
                 _ => {}
             }
@@ -438,7 +455,7 @@ fn update<Message, Theme, Renderer>(
             if let Some(on_press) = widget.on_press.as_ref()
                 && let Some(position) = cursor.position_in(layout.bounds())
             {
-                shell.publish(on_press(position));
+                shell.publish(on_press(position, state.modifiers));
                 shell.capture_event();
             }
 
@@ -452,7 +469,7 @@ fn update<Message, Theme, Renderer>(
                 );
 
                 if new_click.kind() == mouse::click::Kind::Double {
-                    shell.publish(on_double_click(position));
+                    shell.publish(on_double_click(position, state.modifiers));
                 }
 
                 state.previous_click = Some(new_click);
@@ -467,14 +484,14 @@ fn update<Message, Theme, Renderer>(
             if let Some(on_release) = widget.on_release.as_ref()
                 && let Some(position) = cursor.position_in(layout.bounds())
             {
-                shell.publish(on_release(position));
+                shell.publish(on_release(position, state.modifiers));
             }
         }
         Event::Mouse(mouse::Event::ButtonPressed(mouse::Button::Right)) => {
             if let Some(on_right_press) = widget.on_right_press.as_ref()
                 && let Some(position) = cursor.position_in(layout.bounds())
             {
-                shell.publish(on_right_press(position));
+                shell.publish(on_right_press(position, state.modifiers));
                 shell.capture_event();
             }
         }
@@ -482,14 +499,14 @@ fn update<Message, Theme, Renderer>(
             if let Some(on_right_release) = widget.on_right_release.as_ref()
                 && let Some(position) = cursor.position_in(layout.bounds())
             {
-                shell.publish(on_right_release(position));
+                shell.publish(on_right_release(position, state.modifiers));
             }
         }
         Event::Mouse(mouse::Event::ButtonPressed(mouse::Button::Middle)) => {
             if let Some(on_middle_press) = widget.on_middle_press.as_ref()
                 && let Some(position) = cursor.position_in(layout.bounds())
             {
-                shell.publish(on_middle_press(position));
+                shell.publish(on_middle_press(position, state.modifiers));
                 shell.capture_event();
             }
         }
@@ -497,7 +514,7 @@ fn update<Message, Theme, Renderer>(
             if let Some(on_middle_release) = widget.on_middle_release.as_ref()
                 && let Some(position) = cursor.position_in(layout.bounds())
             {
-                shell.publish(on_middle_release(position));
+                shell.publish(on_middle_release(position, state.modifiers));
             }
         }
         Event::Mouse(mouse::Event::WheelScrolled { delta }) => {

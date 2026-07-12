@@ -3,6 +3,7 @@
 //! Run with: `cargo run --example mouse_area`
 
 use iced::widget::{center, column, container, text};
+use iced::keyboard;
 use iced::{Center, Element, Point};
 
 use sweeten::mouse_area;
@@ -22,14 +23,16 @@ struct App {
 
 #[derive(Clone, Debug)]
 enum Message {
-    Mouse(&'static str, Point),
+    Mouse(&'static str, Point, keyboard::Modifiers),
 }
 
 impl App {
     fn update(&mut self, message: Message) {
         match message {
-            Message::Mouse(event, p) => {
-                self.status = format!("{event} at ({:.0}, {:.0})", p.x, p.y);
+            Message::Mouse(event, p, modifiers) => {
+                let shift = if modifiers.shift() { " +shift" } else { "" };
+                self.status =
+                    format!("{event} at ({:.0}, {:.0}){shift}", p.x, p.y);
             }
         }
     }
@@ -40,14 +43,14 @@ impl App {
                 mouse_area(
                     center("Hover and click me!").style(container::rounded_box)
                 )
-                .on_enter(|p| Message::Mouse("Entered", p))
-                .on_exit(|p| Message::Mouse("Exited", p))
-                .on_press(|p| Message::Mouse("Left press", p))
-                .on_release(|p| Message::Mouse("Left release", p))
-                .on_right_press(|p| Message::Mouse("Right press", p))
-                .on_right_release(|p| Message::Mouse("Right release", p))
-                .on_middle_press(|p| Message::Mouse("Middle press", p))
-                .on_middle_release(|p| Message::Mouse("Middle release", p)),
+                .on_enter(|p, m| Message::Mouse("Entered", p, m))
+                .on_exit(|p, m| Message::Mouse("Exited", p, m))
+                .on_press(|p, m| Message::Mouse("Left press", p, m))
+                .on_release(|p, m| Message::Mouse("Left release", p, m))
+                .on_right_press(|p, m| Message::Mouse("Right press", p, m))
+                .on_right_release(|p, m| Message::Mouse("Right release", p, m))
+                .on_middle_press(|p, m| Message::Mouse("Middle press", p, m))
+                .on_middle_release(|p, m| Message::Mouse("Middle release", p, m)),
                 text(&self.status).align_x(Center)
             ]
             .spacing(10)

@@ -48,11 +48,16 @@ pub struct MouseArea<
     content: Element<'a, Message, Theme, Renderer>,
     on_press: Option<Box<dyn Fn(Point, keyboard::Modifiers) -> Message + 'a>>,
     on_release: Option<Box<dyn Fn(Point, keyboard::Modifiers) -> Message + 'a>>,
-    on_double_click: Option<Box<dyn Fn(Point, keyboard::Modifiers) -> Message + 'a>>,
-    on_right_press: Option<Box<dyn Fn(Point, keyboard::Modifiers) -> Message + 'a>>,
-    on_right_release: Option<Box<dyn Fn(Point, keyboard::Modifiers) -> Message + 'a>>,
-    on_middle_press: Option<Box<dyn Fn(Point, keyboard::Modifiers) -> Message + 'a>>,
-    on_middle_release: Option<Box<dyn Fn(Point, keyboard::Modifiers) -> Message + 'a>>,
+    on_double_click:
+        Option<Box<dyn Fn(Point, keyboard::Modifiers) -> Message + 'a>>,
+    on_right_press:
+        Option<Box<dyn Fn(Point, keyboard::Modifiers) -> Message + 'a>>,
+    on_right_release:
+        Option<Box<dyn Fn(Point, keyboard::Modifiers) -> Message + 'a>>,
+    on_middle_press:
+        Option<Box<dyn Fn(Point, keyboard::Modifiers) -> Message + 'a>>,
+    on_middle_release:
+        Option<Box<dyn Fn(Point, keyboard::Modifiers) -> Message + 'a>>,
     on_scroll: Option<Box<dyn Fn(mouse::ScrollDelta) -> Message + 'a>>,
     on_enter: Option<Box<dyn Fn(Point, keyboard::Modifiers) -> Message + 'a>>,
     on_move: Option<Box<dyn Fn(Point, keyboard::Modifiers) -> Message + 'a>>,
@@ -66,7 +71,10 @@ impl<'a, Message, Theme, Renderer> MouseArea<'a, Message, Theme, Renderer> {
     /// The closure receives the click position as a [`Point`] and
     /// the [`keyboard::Modifiers`] held at the time of the event.
     #[must_use]
-    pub fn on_press(mut self, f: impl Fn(Point, keyboard::Modifiers) -> Message + 'a) -> Self {
+    pub fn on_press(
+        mut self,
+        f: impl Fn(Point, keyboard::Modifiers) -> Message + 'a,
+    ) -> Self {
         self.on_press = Some(Box::new(f));
         self
     }
@@ -89,7 +97,10 @@ impl<'a, Message, Theme, Renderer> MouseArea<'a, Message, Theme, Renderer> {
     /// The closure receives the release position as a [`Point`] and
     /// the [`keyboard::Modifiers`] held at the time of the event.
     #[must_use]
-    pub fn on_release(mut self, f: impl Fn(Point, keyboard::Modifiers) -> Message + 'a) -> Self {
+    pub fn on_release(
+        mut self,
+        f: impl Fn(Point, keyboard::Modifiers) -> Message + 'a,
+    ) -> Self {
         self.on_release = Some(Box::new(f));
         self
     }
@@ -121,7 +132,10 @@ impl<'a, Message, Theme, Renderer> MouseArea<'a, Message, Theme, Renderer> {
     /// The closure receives the click position as a [`Point`] and
     /// the [`keyboard::Modifiers`] held at the time of the event.
     #[must_use]
-    pub fn on_right_press(mut self, f: impl Fn(Point, keyboard::Modifiers) -> Message + 'a) -> Self {
+    pub fn on_right_press(
+        mut self,
+        f: impl Fn(Point, keyboard::Modifiers) -> Message + 'a,
+    ) -> Self {
         self.on_right_press = Some(Box::new(f));
         self
     }
@@ -179,7 +193,10 @@ impl<'a, Message, Theme, Renderer> MouseArea<'a, Message, Theme, Renderer> {
     ///
     /// The closure receives the entry position as a [`Point`].
     #[must_use]
-    pub fn on_enter(mut self, f: impl Fn(Point, keyboard::Modifiers) -> Message + 'a) -> Self {
+    pub fn on_enter(
+        mut self,
+        f: impl Fn(Point, keyboard::Modifiers) -> Message + 'a,
+    ) -> Self {
         self.on_enter = Some(Box::new(f));
         self
     }
@@ -188,7 +205,10 @@ impl<'a, Message, Theme, Renderer> MouseArea<'a, Message, Theme, Renderer> {
     ///
     /// The closure receives the current position as a [`Point`].
     #[must_use]
-    pub fn on_move(mut self, f: impl Fn(Point, keyboard::Modifiers) -> Message + 'a) -> Self {
+    pub fn on_move(
+        mut self,
+        f: impl Fn(Point, keyboard::Modifiers) -> Message + 'a,
+    ) -> Self {
         self.on_move = Some(Box::new(f));
         self
     }
@@ -197,7 +217,10 @@ impl<'a, Message, Theme, Renderer> MouseArea<'a, Message, Theme, Renderer> {
     ///
     /// The closure receives the exit position as a [`Point`].
     #[must_use]
-    pub fn on_exit(mut self, f: impl Fn(Point, keyboard::Modifiers) -> Message + 'a) -> Self {
+    pub fn on_exit(
+        mut self,
+        f: impl Fn(Point, keyboard::Modifiers) -> Message + 'a,
+    ) -> Self {
         self.on_exit = Some(Box::new(f));
         self
     }

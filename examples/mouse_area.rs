@@ -2,8 +2,8 @@
 //!
 //! Run with: `cargo run --example mouse_area`
 
-use iced::widget::{center, column, container, text};
 use iced::keyboard;
+use iced::widget::{center, column, container, text};
 use iced::{Center, Element, Point};
 
 use sweeten::mouse_area;
@@ -50,7 +50,11 @@ impl App {
                 .on_right_press(|p, m| Message::Mouse("Right press", p, m))
                 .on_right_release(|p, m| Message::Mouse("Right release", p, m))
                 .on_middle_press(|p, m| Message::Mouse("Middle press", p, m))
-                .on_middle_release(|p, m| Message::Mouse("Middle release", p, m)),
+                .on_middle_release(|p, m| Message::Mouse(
+                    "Middle release",
+                    p,
+                    m
+                )),
                 text(&self.status).align_x(Center)
             ]
             .spacing(10)

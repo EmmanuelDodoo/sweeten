@@ -350,7 +350,7 @@ where
 
             let font =
                 self.format.font.unwrap_or_else(|| renderer.default_font());
-            let hint_factor = renderer.scale_factor();
+            let hint_factor = renderer.hint_factor();
 
             let min = self.min_size.unwrap_or(DEFAULT_MIN_SIZE);
             let max = self.max_size.unwrap_or(DEFAULT_MAX_SIZE);

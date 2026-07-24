@@ -339,7 +339,7 @@ where
             shaping: text::Shaping::Advanced,
             wrapping: text::Wrapping::None,
             ellipsis: text::Ellipsis::default(),
-            hint_factor: renderer.scale_factor(),
+            hint_factor: renderer.hint_factor(),
         };
 
         let _ = state.placeholder.update(placeholder_text);
@@ -366,7 +366,7 @@ where
                 shaping: text::Shaping::Advanced,
                 wrapping: text::Wrapping::None,
                 ellipsis: text::Ellipsis::default(),
-                hint_factor: renderer.scale_factor(),
+                hint_factor: renderer.hint_factor(),
             };
 
             let _ = state.icon.update(icon_text);
@@ -548,7 +548,7 @@ where
                                     y: text_bounds.y,
                                     width: if renderer::CRISP {
                                         (1.0 / renderer
-                                            .scale_factor()
+                                            .hint_factor()
                                             .unwrap_or(1.0))
                                         .max(1.0)
                                     } else {
@@ -1786,7 +1786,7 @@ fn replace_paragraph<Renderer>(
         shaping: text::Shaping::Advanced,
         wrapping: text::Wrapping::None,
         ellipsis: text::Ellipsis::default(),
-        hint_factor: renderer.scale_factor(),
+        hint_factor: renderer.hint_factor(),
     });
 }
 

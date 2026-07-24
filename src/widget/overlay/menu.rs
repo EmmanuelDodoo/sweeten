@@ -1160,7 +1160,7 @@ where
                         shaping,
                         wrapping: text::Wrapping::None,
                         ellipsis,
-                        hint_factor: renderer.scale_factor(),
+                        hint_factor: renderer.hint_factor(),
                     });
 
                     paragraph.min_width()
@@ -1604,7 +1604,7 @@ where
                             shaping: self.shaping,
                             wrapping: text::Wrapping::None,
                             ellipsis: self.ellipsis,
-                            hint_factor: renderer.scale_factor(),
+                            hint_factor: renderer.hint_factor(),
                         },
                         Point::new(bounds.x + inset.left, bounds.center_y()),
                         text_color,
@@ -1627,7 +1627,7 @@ where
                             shaping: self.shaping,
                             wrapping: text::Wrapping::None,
                             ellipsis: self.ellipsis,
-                            hint_factor: renderer.scale_factor(),
+                            hint_factor: renderer.hint_factor(),
                         },
                         Point::new(bounds.x + inset.left, bounds.center_y()),
                         style.label_text_color,
